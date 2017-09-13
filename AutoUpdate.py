@@ -1,4 +1,3 @@
-# Code by Kelvin
 import sublime
 import sublime_plugin
 
@@ -64,17 +63,21 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 				if len(self.view.substr(i).split("/"+gc)) > 1:
 					oglink = "/"+gc+self.view.substr(i).split("/"+gc)[1].split("?")[0]
 				else:
+					# 这里使用默认链接
 					oglink = "https"+self.view.substr(i).split("https")[1].split("?")[0]
 
 			og_body = self.view.find_all("<body(.*)>")
 			for i in og_body:
 				wechatLine = self.view.full_line(self.view.line(i).b+1)
 				wechat = self.view.substr(wechatLine).split("display:")
+				# print("og body=>",i,self.view.line(i).b,"wechat=>",wechatLine)
 				oglink = oglink.split(".")[0]+"_wechat."+oglink.split(".")[1]
 				if len(wechat) <= 1:
 					self.view.insert(edit, self.view.line(i).b, '\n	<div style="display:none;"><img src="'+oglink+'" alt=""></div>')
+				# else:
+				# 	self.view.replace(edit, wechatLine, '	<div style="display:none;"><img src="'+oglink+'" alt=""></div>\n')
 
-		# Font update
+		# 字体修改
 		SFfont = self.view.find_all('(?i)fonts\?families=SF\+Pro')
 		SFfontCN = self.view.find_all('/'+gc+'/global/styles/sfpro-'+gc+'.css')
 		if len(SFfont) >= 1 and len(SFfontCN) < 1:
@@ -82,9 +85,13 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 			self.view.insert(edit, EndHeadLine.a-1,'\n\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'.css" />\n	<!--[if IE]>\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'-ie.css" />\n	<![endif]-->\n')
 
 
-		# NA check。
+		# 增加NA check。
 		NA = self.view.find_all('(?i)n/a')
+		# print("NA:",NA)
 		if len(NA)>=1:
 			sublime.error_message("This page have N/A have to remove.")
 
+		# 跟随美国v
+
+	# def run("~/Develper")
 

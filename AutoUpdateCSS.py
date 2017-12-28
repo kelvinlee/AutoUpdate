@@ -108,6 +108,6 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 		newView.insert(edit,0,newContent)
 		# print("allImagesCount:",allImagesCount,finishedCss)
 		if allImagesCount > finishedCss:
-			sublime.error_message("Miss files plz double check:\n"+missFiles)
+			sublime.error_message("Miss files , double check:\n"+missFiles)
 			print("missFiles:",missFiles)
 		

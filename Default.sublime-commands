@@ -1,0 +1,26 @@
+[
+    {
+        "caption": "AutoUpdate:CN",
+        "command": "auto_update",
+        "args": {"lang":"cn"}
+    },
+    {
+        "caption": "AutoUpdate:HK",
+        "command": "auto_update",
+        "args": {"lang":"hk"}
+    },
+    {
+        "caption": "AutoUpdate:TW",
+        "command": "auto_update",
+        "args": {"lang":"tw"}
+    },
+    {
+        "caption": "AutoUpdate:HK/EN",
+        "command": "auto_update",
+        "args": {"lang":"hk/en"}
+    },
+    {
+        "caption": "AutoUpdate:CSS",
+        "command": "auto_update_css"
+    }
+]

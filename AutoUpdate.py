@@ -2,10 +2,17 @@ import sublime
 import sublime_plugin
 
 class AutoUpdateCommand(sublime_plugin.TextCommand):
-	def run(self, edit):
+	def run(self, edit, lang):
 		# 初始化参数
-		haswechat = 1
-		gc = "cn" # HK/EN 需要单独制作
+		haswechat = 0
+		hasFont = 1
+		gc = lang # HK/EN 需要单独制作
+		gcHead = "zh"
+		if gc == "hk/en":
+			gcHead = "en"
+			hasFont = 0
+		# lang = "en_"
+		# print(lang)
 
 		# 更新链接为本地连接
 		allShopLink = self.view.find_all('/us/shop', sublime.IGNORECASE)
@@ -13,10 +20,11 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 		for i in allShopLink:
 			self.view.replace(edit, i, '/'+gc+'/shop')
 
-		allLink = self.view.find_all('="/(?!(?:v|ac|metrics|105|'+gc+'|wss|choose-your-country|jobs))([^\"]*)"', sublime.IGNORECASE)
+		countrys = ["cn","hk","tw","jp","uk","au","befr","ca","dk","fi","fr","de","ie","it","mx","nl","nz","no","sg","es","se","chfr","tr"]
+		allLink = self.view.find_all('="/(?!(?:v|ac|metrics|105|'+'|'.join(countrys)+'|'+gc+'|wss|choose-your-country|jobs))([^\"]*)"', sublime.IGNORECASE)
 		allLink.reverse()
 		for i in allLink:
-			print(self.view.substr(i)[3:],i)
+			# print(self.view.substr(i)[3:],i)
 			self.view.replace(edit, i, '="/'+gc+'/'+self.view.substr(i)[3:])
 
 		allFullLink = self.view.find_all('https://www.apple.com/(?!(?:v|ac|metrics|105|'+gc+'|wss|choose-your-country|jobs))([^\"]*)', sublime.IGNORECASE)
@@ -32,11 +40,11 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 		allSuportLink = self.view.find_all('http://support.apple.com/(?i)en-us', sublime.IGNORECASE)
 		allSuportLink.reverse()
 		for i in allSuportLink:
-			self.view.replace(edit, i, 'http://support.apple.com/zh-'+gc)
+			self.view.replace(edit, i, 'http://support.apple.com'+gcHead+'/-'+gc)
 		
 		iOSLink = self.view.find_all('<meta property="al:ios:url"(.*)>')
 		iOSLink.reverse()
-		print("iOSLink:",iOSLink)
+		# print("iOSLink:",iOSLink)
 		for i in iOSLink:
 			text = self.view.substr(i).replace("/us","/"+gc)
 			self.view.replace(edit,i, text)
@@ -46,12 +54,12 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 		allLanguage = self.view.find_all('en-US')
 		allLanguage.reverse()
 		for i in allLanguage:
-			self.view.replace(edit, i, 'zh-'+gc.upper())
+			self.view.replace(edit, i, gcHead+'-'+gc[:2].upper())
 
 		allLanguage2 = self.view.find_all('en_US')
 		allLanguage2.reverse()
 		for i in allLanguage2:
-			self.view.replace(edit, i, 'zh_'+gc.upper())
+			self.view.replace(edit, i, gcHead+'_'+gc[:2].upper())
 
 		# 查询OG图片然后插入到body 如果不需要 haswechat = false
 		if haswechat:
@@ -78,12 +86,12 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 				# 	self.view.replace(edit, wechatLine, '	<div style="display:none;"><img src="'+oglink+'" alt=""></div>\n')
 
 		# 字体修改
-		SFfont = self.view.find_all('(?i)fonts\?families=SF\+Pro')
-		SFfontCN = self.view.find_all('/'+gc+'/global/styles/sfpro-'+gc+'.css')
-		if len(SFfont) >= 1 and len(SFfontCN) < 1:
-			EndHeadLine = self.view.find_all('</head>')[0]
-			self.view.insert(edit, EndHeadLine.a-1,'\n\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'.css" />\n	<!--[if IE]>\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'-ie.css" />\n	<![endif]-->\n')
-
+		if hasFont:
+			SFfont = self.view.find_all('(?i)fonts\?families=SF\+Pro')
+			SFfontCN = self.view.find_all('/'+gc+'/global/styles/sfpro-'+gc+'.css')
+			if len(SFfont) >= 1 and len(SFfontCN) < 1:
+				EndHeadLine = self.view.find_all('</head>')[0]
+				self.view.insert(edit, EndHeadLine.a-1,'\n\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'.css" />\n	<!--[if IE]>\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'-ie.css" />\n	<![endif]-->\n')
 
 		# 增加NA check。
 		NA = self.view.find_all('(?i)n/a')

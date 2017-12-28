@@ -1,4 +1,2 @@
 [
-	{ "keys": ["super+ctrl+c"], "command": "auto_update_css" }
-	{ "keys": ["super+ctrl+s"], "command": "auto_update" }
 ]

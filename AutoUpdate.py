@@ -1,5 +1,6 @@
 import sublime
 import sublime_plugin
+import json
 
 class AutoUpdateCommand(sublime_plugin.TextCommand):
 	def run(self, edit, lang):
@@ -11,8 +12,9 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 		if gc == "hk/en":
 			gcHead = "en"
 			hasFont = 0
+		fontLang = {"cn":"SC","hk":"HK","tw":"TC","mo":"HK"}
 		# lang = "en_"
-		# print(lang)
+		# print(fontLang[gc],gc)
 
 		# 更新链接为本地连接
 		allShopLink = self.view.find_all('/us/shop', sublime.IGNORECASE)
@@ -27,20 +29,20 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 			# print(self.view.substr(i)[3:],i)
 			self.view.replace(edit, i, '="/'+gc+'/'+self.view.substr(i)[3:])
 
-		allFullLink = self.view.find_all('https://www.apple.com/(?!(?:v|ac|metrics|105|'+gc+'|wss|choose-your-country|jobs))([^\"]*)', sublime.IGNORECASE)
+		allFullLink = self.view.find_all('://www.apple.com/(?!(?:v|ac|metrics|105|'+gc+'|wss|choose-your-country|jobs))([^\"]*)', sublime.IGNORECASE)
 		allFullLink.reverse()
 		for i in allFullLink:
-			self.view.replace(edit, i, 'https://www.apple.com/'+gc+self.view.substr(i)[21:])
+			self.view.replace(edit, i, '://www.apple.com/'+gc+self.view.substr(i)[21:])
 
-		allShopLink = self.view.find_all('https://itunes.apple.com/'+gc, sublime.IGNORECASE)
+		allShopLink = self.view.find_all('://itunes.apple.com/'+gc, sublime.IGNORECASE)
 		allShopLink.reverse()
 		for i in allShopLink:
-			self.view.replace(edit, i, 'https://itunes.apple.com/'+gc)
+			self.view.replace(edit, i, '://itunes.apple.com/'+gc)
 
-		allSuportLink = self.view.find_all('http://support.apple.com/(?i)en-us', sublime.IGNORECASE)
+		allSuportLink = self.view.find_all('://support.apple.com/(?i)en-us', sublime.IGNORECASE)
 		allSuportLink.reverse()
 		for i in allSuportLink:
-			self.view.replace(edit, i, 'http://support.apple.com'+gcHead+'/-'+gc)
+			self.view.replace(edit, i, '://support.apple.com'+gcHead+'/-'+gc)
 		
 		iOSLink = self.view.find_all('<meta property="al:ios:url"(.*)>')
 		iOSLink.reverse()
@@ -91,7 +93,7 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 			SFfontCN = self.view.find_all('/'+gc+'/global/styles/sfpro-'+gc+'.css')
 			if len(SFfont) >= 1 and len(SFfontCN) < 1:
 				EndHeadLine = self.view.find_all('</head>')[0]
-				self.view.insert(edit, EndHeadLine.a-1,'\n\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'.css" />\n	<!--[if IE]>\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+SC&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'-ie.css" />\n	<![endif]-->\n')
+				self.view.insert(edit, EndHeadLine.a-1,'\n\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+'+fontLang[gc]+'&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'.css" />\n	<!--[if IE]>\n	<link rel="stylesheet" href="/wss/fonts?family=SF+Pro+'+fontLang[gc]+'&amp;weights=300,400,500,600&amp;v=1" type="text/css">\n	<link rel="stylesheet" href="/'+gc+'/global/styles/sfpro-'+gc+'-ie.css" />\n	<![endif]-->\n')
 
 		# 增加NA check。
 		NA = self.view.find_all('(?i)n/a')

@@ -22,5 +22,9 @@
     {
         "caption": "AutoUpdate:CSS",
         "command": "auto_update_css"
+    },
+    {
+        "caption": "AutoUpdate:Link",
+        "command": "auto_update_link"
     }
 ]

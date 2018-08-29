@@ -1,0 +1,9 @@
+[
+  { "caption": "-" },
+  {
+    "caption": "UpdateContent!",
+    "id": "auto_update_content",
+    "command": "auto_update_content"
+  },
+  { "caption": "-" }
+]

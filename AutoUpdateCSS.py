@@ -9,8 +9,8 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 		preContent = ""
 		nextContent = ""
 		missFiles = ""
-		# checkFolder = sublime.ok_cancel_dialog("如果页面有重名图片请选择OK，否则选择Cancel。")
-		checkFolder = True
+		checkFolder = sublime.ok_cancel_dialog("如果页面有重名图片请选择OK，否则选择Cancel。")
+		# checkFolder = True
 		self.window = sublime.active_window()
 		if len(self.window.folders()) <= 0:
 			sublime.error_message("You need put css and images in same folder.")

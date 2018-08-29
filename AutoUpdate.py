@@ -100,26 +100,35 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 			og.reverse()
 			oglink = ""
 			for i in og:
-				print("og image=>", len(self.view.substr(i).split("/"+gc)))
+				# print("og image=>", len(self.view.substr(i).split("/"+gc)))
 				if len(self.view.substr(i).split("/"+gc)) > 1:
 					oglink = "/"+gc+self.view.substr(i).split("/"+gc)[1].split("?")[0]
 				else:
 					# 这里使用默认链接
 					oglink = "https"+self.view.substr(i).split("https")[1].split("?")[0]
-			print("oglink",oglink)
+			# print("oglink",oglink)
 			og_body = self.view.find_all("<body(.*)>")
 			for i in og_body:
 				wechatLine = self.view.full_line(self.view.line(i).b+1)
 				wechat = self.view.substr(wechatLine).split("display:")
-				# print("og body=>",i,self.view.line(i).b,"wechat=>",wechatLine)
+				print("og body=>",i,self.view.line(i).b,"wechat=>",wechatLine,wechat)
 				linkPoint = len(oglink.split("."))
-				print("linkPoint",linkPoint)
-				oglink = oglink.split(".")[linkPoint-2]+"_wechat."+oglink.split(".")[linkPoint-1]
-				oglink = oglink.replace("com/v/","/"+gc+"/")
+				# oglink = oglink.split(".")[linkPoint-2]+"_wechat."+oglink.split(".")[linkPoint-1]
+				oglinkSp = oglink.split(".")
+				oglink = ""
+				for j in range(linkPoint):
+					if j >= len(oglinkSp)-1:
+						oglink = oglink+oglinkSp[j]
+					elif j >= len(oglinkSp)-2:
+						oglink = oglink+oglinkSp[j]+"_wechat."
+					else:
+						oglink = oglink+oglinkSp[j]+"."
+				oglink = oglink.replace("https://www.apple.com/v/","/"+gc+"/")
+				print(oglink,len(wechat),i,self.view.line(i).b)
 				if len(wechat) <= 1:
 					self.view.insert(edit, self.view.line(i).b, '\n	<div style="display:none;"><img src="'+oglink+'" alt=""></div>')
 				# else:
-				# 	self.view.replace(edit, wechatLine, '	<div style="display:none;"><img src="'+oglink+'" alt=""></div>\n')
+					# self.view.replace(edit, wechatLine, '	<div style="display:none;"><img src="'+oglink+'" alt=""></div>\n')
 
 		# 字体修改
 		if hasFont:

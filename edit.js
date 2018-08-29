@@ -1,15 +1,17 @@
-"use strict";
+'use strict';
 
-var newName, win;
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-if (fileName.indexOf("Development" && fileName.indexOf("applecom"))) {
-  log(fileName);
-  newName = fileName.replace(/(gc|cn|tw|mo|hk)/ig, "us");
-  log(newName);
-  win = sublime.active_window().open_file(newName);
-  win.window().focus_view(win);
-  win.find_all('<a');
-} else {
-  // sublime.Window().open_file(newName,sublime.TRANSIENT)
-  log("a");
+var divContent, item, view;
+
+view = sublime.active_window().active_view();
+
+divContent = view.find_all('<div[^>]*>((?!</div>).*)</div>');
+
+log(typeof divContent === 'undefined' ? 'undefined' : _typeof(divContent));
+
+for (item in divContent) {
+  log(view.substr(divContent[item]));
 }
+
+divContent;

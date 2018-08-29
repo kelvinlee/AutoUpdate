@@ -30,7 +30,7 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 			self.view.replace(edit, i, '/'+gcShopTitle+'/shop')
 		xcLink = self.view.find_all('/us/xc/', sublime.IGNORECASE)
 		xcLink.reverse()
-		print("xcLink",xcLink)
+		# print("xcLink",xcLink)
 		for i in xcLink:
 			self.view.replace(edit, i, '/'+gcShopTitle+'/xc/')
 
@@ -111,7 +111,7 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 			for i in og_body:
 				wechatLine = self.view.full_line(self.view.line(i).b+1)
 				wechat = self.view.substr(wechatLine).split("display:")
-				print("og body=>",i,self.view.line(i).b,"wechat=>",wechatLine,wechat)
+				# print("og body=>",i,self.view.line(i).b,"wechat=>",wechatLine,wechat)
 				linkPoint = len(oglink.split("."))
 				# oglink = oglink.split(".")[linkPoint-2]+"_wechat."+oglink.split(".")[linkPoint-1]
 				oglinkSp = oglink.split(".")
@@ -124,7 +124,7 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 					else:
 						oglink = oglink+oglinkSp[j]+"."
 				oglink = oglink.replace("https://www.apple.com/v/","/"+gc+"/")
-				print(oglink,len(wechat),i,self.view.line(i).b)
+				# print(oglink,len(wechat),i,self.view.line(i).b)
 				if len(wechat) <= 1:
 					self.view.insert(edit, self.view.line(i).b, '\n	<div style="display:none;"><img src="'+oglink+'" alt=""></div>')
 				# else:

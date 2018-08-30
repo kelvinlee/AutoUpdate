@@ -1,0 +1,3 @@
+{
+	"shell_cmd": "killall node; node $folder/main.js"
+}

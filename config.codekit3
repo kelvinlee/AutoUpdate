@@ -30,6 +30,13 @@
 		"oAP": "\/AutoUpdateCSS.py",
 		"oF": 0
 		},
+	"\/build-node.sublime-build": {
+		"cB": 0,
+		"ft": 8192,
+		"oA": 0,
+		"oAP": "\/build-node.sublime-build",
+		"oF": 0
+		},
 	"\/Context.sublime-menu": {
 		"cB": 0,
 		"ft": 8192,

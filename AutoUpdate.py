@@ -35,8 +35,8 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 			self.view.replace(edit, i, '/'+gcShopTitle+'/xc/')
 
 
-		countrys = ["cn","hk-zh","hk","tw","jp","uk","au","befr","ca","dk","fi","fr","de","ie","it","mx","nl","nz","no","sg","es","se","chfr","tr"]
-		allLink = self.view.find_all('="/(?!(?:v|ac|metrics|105|'+'|'.join(countrys)+'|'+gc+'|wss|choose-your-country|jobs))([^\"]*)"', sublime.IGNORECASE)
+		countrys = ["cn","hk-zh","hk","tw","jp","uk","au","befr","ca","dk","fr","de","ie","it","mx","nl","nz","no","sg","es","se","chfr","tr"]
+		allLink = self.view.find_all('="/(?!(?:v|ac/|metrics|105|'+'|'.join(countrys)+'|'+gc+'|wss|choose-your-country|jobs))([^\"]*)"', sublime.IGNORECASE)
 		allLink.reverse()
 		for i in allLink:
 			self.view.replace(edit, i, '="/'+gc+'/'+self.view.substr(i)[3:])

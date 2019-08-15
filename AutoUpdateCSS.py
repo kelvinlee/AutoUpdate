@@ -46,6 +46,7 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 			allFolders = [ name for name in os.listdir(self.thedir) if os.path.isfile(os.path.join(self.thedir, name)) ]
 			allImagesCount = 0
 			finishedCss = 0
+			allFolders.sort()
 			for img in allFolders:
 				# print(img.rfind("jpg"))
 				if img.rfind("jpg")>0 or img.rfind("png")>0:

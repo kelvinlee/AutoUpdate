@@ -1,16 +1,18 @@
 import sublime
 import sublime_plugin
 import os
+import get_image_size
 
-class AutoUpdateCssCommand(sublime_plugin.TextCommand):
+class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		# 初始化参数
 		newContent = ""
 		preContent = ""
 		nextContent = ""
 		missFiles = ""
-		checkFolder = sublime.ok_cancel_dialog("如果页面有重名图片请选择OK，否则选择Cancel。")
-		# checkFolder = True
+		# checkFolder = sublime.ok_cancel_dialog("如果页面有重名图片请选择OK，否则选择Cancel。")
+		getWithHeight = sublime.ok_cancel_dialog("是否获取图片宽高请选择OK，否则选择Cancel。")
+		checkFolder = False
 		self.window = sublime.active_window()
 		if len(self.window.folders()) <= 0:
 			sublime.error_message("You need put css and images in same folder.")
@@ -37,18 +39,24 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 			m = len(temp) - (len(temp) - preNumbers + 1)
 			url += "/"+temp[m]
 			preNumbers -= 1
-		# 修改成本地路径 end 
-		
+
 		if url == "":
 			sublime.error_message("You need put css and images in same folder.")
 		else:
+
 			# Get all directories in the component directory
 			allFolders = [ name for name in os.listdir(self.thedir) if os.path.isfile(os.path.join(self.thedir, name)) ]
 			allImagesCount = 0
 			finishedCss = 0
 			for img in allFolders:
-				# print(img.rfind("jpg"))
 				if img.rfind("jpg")>0 or img.rfind("png")>0:
+					imgPath = self.thedir+"/"+img
+					try:
+						# print(get_image_size)
+						width, height = get_image_size.get_image_size(imgPath)
+					except get_image_size.UnknownImageFormat:
+						width, height = -1, -1
+
 					css = ""
 					if checkFolder:
 						imgLinks = self.view.find_all("/"+temp[0]+"/"+img)
@@ -57,7 +65,7 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 					# imgLinks.reverse()
 					allImagesCount += 1
 					if len(imgLinks) <= 0:
-						missFiles += img+"  "
+						missFiles += img+"	"
 					else:
 						finishedCss += 1
 					# 获取当前行。
@@ -76,6 +84,10 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 						if len(tmp.split('fallback'))>=2:
 							fallbackEnd = True
 						point = imgLine.a-1
+						if getWithHeight and width > -1 and height > -1 and img.rfind("_2x") < 0:
+							tmp += ";\nwidth: "+str(width)+"px;"
+							tmp += "\nheight: "+str(height)+"px;"
+							tmp += "\nbackground-size: "+str(width)+"px "+str(height)+"px;"
 
 						# 获取前一行直到头部
 						while True:
@@ -118,6 +130,8 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 				newView.set_name(newViewName)
 			except Exception as e:
 				print(e)
+			
+
 			# print("allImagesCount:",allImagesCount,finishedCss)
 			if allImagesCount > finishedCss:
 				sublime.error_message("Miss files , double check:\n"+missFiles)

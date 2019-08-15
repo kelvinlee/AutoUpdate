@@ -24,6 +24,10 @@
         "command": "auto_update_css"
     },
     {
+        "caption": "AutoUpdate:Image",
+        "command": "auto_update_image"
+    },
+    {
         "caption": "AutoUpdate:Content",
         "command": "auto_update_content"
     }

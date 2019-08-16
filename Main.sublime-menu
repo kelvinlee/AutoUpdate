@@ -44,10 +44,10 @@
 							"caption": "CSS/Image",
 							"command": "auto_update_image"
 					},
-					{
-							"caption": "Link",
-							"command": "auto_update_link"
-					},
+					// {
+					// 		"caption": "Link",
+					// 		"command": "auto_update_link"
+					// },
 					{
 							"caption": "Content",
 							"command": "auto_update_content"

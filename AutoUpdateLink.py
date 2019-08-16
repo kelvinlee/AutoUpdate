@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 import os
 
+# 更新主程序的 v 到本地 (暂停).
 class AutoUpdateLinkCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		url = ""

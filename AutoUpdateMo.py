@@ -35,8 +35,8 @@ class AutoUpdateMoCommand(sublime_plugin.TextCommand):
 		# # print("xcLink",xcLink)
 		# for i in xcLink:
 		# 	self.view.replace(edit, i, '/'+gcShopTitle+'/xc/')
-		appleDom("title", self.view, "香港", "澳门", edit)
-		appleDom("meta(.*)site_name", self.view, "香港", "澳门", edit)
+		appleDom("title", self.view, "香港", "澳門", edit)
+		appleDom("meta(.*)site_name", self.view, "香港", "澳門", edit)
 
 
 		countrys = ["cn","tw","hk-zh","us","jp","uk","au","befr","ca","dk","fr","de","ie","it","mx","nl","nz","no","sg","es","se","chfr","tr"]

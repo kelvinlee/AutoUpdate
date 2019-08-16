@@ -1,6 +1,6 @@
 # AutoUpdate
 
-### Code for Sublime Text 3
+### Plugin for Sublime Text 3
 
 ### shortcut keys
 
@@ -13,4 +13,4 @@ if you have any [issues](https://github.com/kelvinlee/AutoUpdate/issues/new) let
 #### version: 1.0.3
 
 1. MO (Done)
-3. 手写字 (Done)
+3. Hand writting (Done)

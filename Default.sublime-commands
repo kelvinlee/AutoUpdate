@@ -33,6 +33,10 @@
         "command": "auto_update_image"
     },
     {
+        "caption": "AutoUpdate:Link",
+        "command": "auto_update_link"
+    },
+    {
         "caption": "AutoUpdate:Content",
         "command": "auto_update_content"
     }

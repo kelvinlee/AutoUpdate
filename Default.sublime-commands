@@ -20,6 +20,11 @@
         "args": {"lang":"hk/en"}
     },
     {
+        "caption": "AutoUpdate:MO",
+        "command": "auto_update_mo",
+        "args": {"lang":"mo"}
+    },
+    {
         "caption": "AutoUpdate:CSS",
         "command": "auto_update_css"
     },

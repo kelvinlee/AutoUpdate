@@ -1,13 +1,42 @@
 [
   { "caption": "-" },
   {
-  	"id": "auto-update-content",
+    "id": "auto-update-content",
     "caption": "AutoUpdate",
     "children": [
-    	{
-    		"caption": "UpdateContent",
-    		"command": "auto_update_content"
-    	}
+      {
+          "caption": "CN",
+          "command": "auto_update",
+          "args": {"lang":"cn"}
+      },
+      {
+          "caption": "HK",
+          "command": "auto_update",
+          "args": {"lang":"hk"}
+      },
+      {
+          "caption": "TW",
+          "command": "auto_update",
+          "args": {"lang":"tw"}
+      },
+      {
+          "caption": "HK/EN",
+          "command": "auto_update",
+          "args": {"lang":"hk/en"}
+      },
+      {
+          "caption": "MO",
+          "command": "auto_update_mo",
+          "args": {"lang":"mo"}
+      },
+      {
+          "caption": "CSS",
+          "command": "auto_update_css"
+      },
+      {
+          "caption": "CSS/Image",
+          "command": "auto_update_image"
+      }
     ]
   },
   { "caption": "-" }

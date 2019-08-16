@@ -35,6 +35,8 @@ class AutoUpdateMoCommand(sublime_plugin.TextCommand):
 		# # print("xcLink",xcLink)
 		# for i in xcLink:
 		# 	self.view.replace(edit, i, '/'+gcShopTitle+'/xc/')
+		appleDom("title", self.view, "香港", "澳门", edit)
+		appleDom("meta(.*)site_name", self.view, "香港", "澳门", edit)
 
 
 		countrys = ["cn","tw","hk-zh","us","jp","uk","au","befr","ca","dk","fr","de","ie","it","mx","nl","nz","no","sg","es","se","chfr","tr"]
@@ -68,27 +70,8 @@ class AutoUpdateMoCommand(sublime_plugin.TextCommand):
 			self.view.replace(edit, i, '="/'+nl)
 
 
-		allFullLink = self.view.find_all('://www.apple.com/(?!(?:v|ac|metrics|105|'+'|'.join(countrys)+'|'+gc+'|wss|choose-your-country|jobs))([^\"]*)', sublime.IGNORECASE)
-		allFullLink.reverse()
-		for i in allFullLink:
-			self.view.replace(edit, i, '://www.apple.com/'+gc+self.view.substr(i)[16:])
-
-
-		secondTime = self.view.find_all('://www.apple.com/'+gc+'/hk(?!(?:/en/))([^\"]*)"')
-		secondTime.reverse()
-		for i in secondTime:
-			nl = self.view.substr(i)[3:]
-			nl = nl.replace(gc+'/hk', gc)
-			print(nl)
-			self.view.replace(edit, i, '://'+nl)
-
-		thirdTime = self.view.find_all('://www.apple.com/'+gc+'/hk/en/([^\"]*)"')
-		thirdTime.reverse()
-		for i in thirdTime:
-			nl = self.view.substr(i)[3:]
-			nl = nl.replace(gc+'/hk/en/', "hk/en/")
-			print(nl)
-			self.view.replace(edit, i, '://'+nl)
+		appleLink("www", self.view, countrys, gc, edit)
+		appleLink("tv", self.view, countrys, gc, edit)
 
 
 
@@ -108,13 +91,13 @@ class AutoUpdateMoCommand(sublime_plugin.TextCommand):
 				itunesLink = itunesLink.replace("/hk","/"+gc)
 			self.view.replace(edit, i, itunesLink)
 
-		allSuportLink = self.view.find_all('://support.apple.com/(?i)zh-hk', sublime.IGNORECASE)
+		allSuportLink = self.view.find_all('support.apple.com/(?i)zh-hk', sublime.IGNORECASE)
 		allSuportLink.reverse()
 		for i in allSuportLink:
 			if gc == "hk/en":
-				self.view.replace(edit, i, '://support.apple.com/'+gcHead+'-hk')
+				self.view.replace(edit, i, 'support.apple.com/'+gcHead+'-hk')
 			else:
-				self.view.replace(edit, i, '://support.apple.com/'+gcHead+'-'+gc)
+				self.view.replace(edit, i, 'support.apple.com/'+gcHead+'-'+gc)
 		
 		iOSLink = self.view.find_all('<meta property="al:ios:url"(.*)>')
 		iOSLink.reverse()
@@ -193,4 +176,34 @@ class AutoUpdateMoCommand(sublime_plugin.TextCommand):
 		# 跟随美国v
 
 	# def run("~/Develper")
+def appleDom(dom, view, passName, replaceName, edit):
+	allCityName = view.find_all('<'+dom+'(.*)'+passName)
+	for i in allCityName:
+		name = view.substr(i)[0:].replace(passName, replaceName)
+		view.replace(edit, i, name)
+
+def appleLink(prev, view, countrys, gc, edit):
+	l = len(prev) + 13
+	allFullLink = view.find_all(prev+'.apple.com/(?!(?:v|ac|metrics|105|'+'|'.join(countrys)+'|'+gc+'|wss|choose-your-country|jobs))([^\"]*)', sublime.IGNORECASE)
+	allFullLink.reverse()
+	for i in allFullLink:
+		view.replace(edit, i, prev+'.apple.com/'+gc+view.substr(i)[l:])
+
+
+	secondTime = view.find_all(prev+'.apple.com/'+gc+'/hk(?!(?:/en/))([^\"]*)"')
+	secondTime.reverse()
+	for i in secondTime:
+		nl = view.substr(i)[0:]
+		nl = nl.replace(gc+'/hk', gc)
+		print(nl)
+		view.replace(edit, i, ''+nl)
+
+	thirdTime = view.find_all(prev+'.apple.com/'+gc+'/hk/en/([^\"]*)"')
+	thirdTime.reverse()
+	for i in thirdTime:
+		nl = view.substr(i)[0:]
+		nl = nl.replace(gc+'/hk/en/', "hk/en/")
+		print(nl)
+		view.replace(edit, i, ''+nl)
+
 

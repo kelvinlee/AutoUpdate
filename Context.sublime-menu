@@ -1,9 +1,14 @@
 [
   { "caption": "-" },
   {
-    "caption": "UpdateContent!",
-    "id": "auto_update_content",
-    "command": "auto_update_content"
+  	"id": "auto-update-content",
+    "caption": "AutoUpdate",
+    "children": [
+    	{
+    		"caption": "UpdateContent",
+    		"command": "auto_update_content"
+    	}
+    ]
   },
   { "caption": "-" }
 ]

@@ -113,10 +113,10 @@ class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 			newView = self.window.new_file()
 			newView.set_syntax_file("Packages/CSS/CSS.tmLanguage")
 			newView.insert(edit,0,newContent)
+			newViewName = url.split("/")[2]+"."+url.split("/")[3]+".build.css"
+			newView.set_name(newViewName)
 			try:
 				newView.run_command("css_format",{"action": "expand"})
-				newViewName = url.split("/")[2]+"."+url.split("/")[3]+".build.css"
-				newView.set_name(newViewName)
 			except Exception as e:
 				print(e)
 			# print("allImagesCount:",allImagesCount,finishedCss)

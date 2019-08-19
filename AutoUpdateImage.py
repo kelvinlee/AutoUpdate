@@ -2,8 +2,10 @@ import sublime
 import sublime_plugin
 from . import get_image_size
 import os
+import json
 
-# 获取 css 和图片宽高.
+
+
 class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		# 初始化参数
@@ -11,6 +13,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 		preContent = ""
 		nextContent = ""
 		missFiles = ""
+		rewriteClass = {}
 		# checkFolder = sublime.ok_cancel_dialog("如果页面有重名图片请选择OK，否则选择Cancel。")
 		getWithHeight = sublime.ok_cancel_dialog("是否获取图片宽高请选择OK，否则选择Cancel。")
 		checkFolder = False
@@ -98,6 +101,10 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							preLineStr = self.view.substr(preLine)
 							tmpPreLineStr = preLineStr.strip()
 							if preLineStr[0] == "h" or preLineStr[0] == "@" or preLineStr[0] == "#" or preLineStr[0] == ".":
+								# print("preLineStr:"+preLineStr)
+								if preLineStr[0] == ".":
+									objectNmae = preLineStr.replace(" {\n", "")
+									rewriteClass[objectNmae] = 1
 								preNumbers += 1
 								tmp = preLineStr+tmp
 								while preNumbers > 0:
@@ -123,7 +130,20 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						
 						
 					# break
-			newContent = preContent + nextContent
+			about = ""
+			for k in rewriteClass:
+				classLinks = self.view.find_all(k)
+				for i in classLinks:
+					Line = self.view.line(i)
+					code = self.view.substr(Line)
+					# print(code+" --- "+k)
+					c = getCssContentByCode(code, self.view, True)
+					print(c)
+					about += c
+					# break
+
+			# print(rewriteClass)
+			newContent = about + preContent + nextContent
 			newView = self.window.new_file()
 			newView.set_syntax_file("Packages/CSS/CSS.tmLanguage")
 			newView.insert(edit,0,newContent)
@@ -140,3 +160,71 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 				sublime.error_message("Miss files , double check:\n"+missFiles)
 				print("missFiles:",missFiles)
 		
+def getCssContentByCode(code, view, samepass):
+	# print("code: "+code)
+	classLinks = view.find_all(code)
+	reback = ""
+	point = 0
+	preNumbers = 0
+	for i in classLinks:
+		Line = view.line(i)
+		tmp = view.substr(Line)
+		if tmp.replace(" {\n", "").strip() == code.replace(" {\n", "").strip(): 
+			# print("same")
+			continue
+		# print("temp:",tmp,tmp[0])
+		if tmp[0] == ".":
+			point = Line.b + 1
+			while True:
+				nextLine = view.full_line(point)
+				LineContent = view.substr(nextLine)
+				lineStr = LineContent.strip()
+				if len(lineStr.split("left")) > 1 or len(lineStr.split("right")) > 1 or len(lineStr.split("top")) > 1 or len(lineStr.split("bottom")) > 1:
+					tmp += lineStr
+				if lineStr == "}":
+					# tmp += lineStr
+					break
+				point = nextLine.b+1
+				pass
+			# tmp += "}"
+			reback += tmp
+
+		else:
+			# tmp += "aaa}"
+			point = Line.b + 1
+			while True:
+				nextLine = view.full_line(point)
+				LineContent = view.substr(nextLine)
+				lineStr = LineContent.strip()
+				# print(len(lineStr.split("left")),len(lineStr.split("right")),lineStr)
+				if len(lineStr.split("left")) > 1 or len(lineStr.split("right")) > 1 or len(lineStr.split("top")) > 1 or len(lineStr.split("bottom")) > 1:
+					tmp += lineStr
+				if lineStr == "}":
+					tmp += lineStr
+					break
+				point = nextLine.b+1
+				pass
+
+			point = Line.a - 1
+			numbEnd = 0
+			while True:
+				numbEnd += 1
+				prevLine = view.full_line(point)
+				LineContent = view.substr(prevLine)
+				lineStr = LineContent.strip()
+				if len(lineStr) > 0 and (lineStr[0] == "h" or lineStr[0] == "@" or lineStr[0] == "#"):
+					tmp = lineStr + tmp
+					break
+				point = prevLine.a - 1
+				pass
+			if numbEnd > 0:
+				tmp += "}"
+
+			reback += tmp
+
+
+
+
+	return reback
+
+

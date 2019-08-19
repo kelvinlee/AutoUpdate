@@ -182,7 +182,7 @@ def getCssContentByCode(code, view, samepass):
 				if len(lineStr.split("left")) > 1 or len(lineStr.split("right")) > 1 or len(lineStr.split("top")) > 1 or len(lineStr.split("bottom")) > 1:
 					tmp += lineStr
 				if lineStr == "}":
-					# tmp += lineStr
+					tmp += lineStr
 					break
 				point = nextLine.b+1
 				pass

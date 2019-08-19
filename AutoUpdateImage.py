@@ -3,6 +3,7 @@ import sublime_plugin
 from . import get_image_size
 import os
 
+# 获取 css 和图片宽高.
 class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		# 初始化参数

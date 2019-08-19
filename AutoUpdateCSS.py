@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 import os
 
+# 获取 css
 class AutoUpdateCssCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		# 初始化参数

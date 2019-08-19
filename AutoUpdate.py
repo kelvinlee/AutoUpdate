@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 import json
 
+# 自动化更新本地连接
 class AutoUpdateCommand(sublime_plugin.TextCommand):
 	def run(self, edit, lang):
 		# 初始化参数

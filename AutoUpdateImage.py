@@ -1,6 +1,6 @@
 import sublime
 import sublime_plugin
-from get_image_size import get_image_size
+from . import get_image_size
 import os
 
 class AutoUpdateImageCommand(sublime_plugin.TextCommand):

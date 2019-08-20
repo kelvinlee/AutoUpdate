@@ -14,7 +14,8 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 		missFiles = ""
 		rewriteClass = {}
 		# checkFolder = sublime.ok_cancel_dialog("如果页面有重名图片请选择OK，否则选择Cancel。")
-		getWithHeight = sublime.ok_cancel_dialog("是否获取图片宽高请选择OK，否则选择Cancel。")
+		# getWithHeight = sublime.ok_cancel_dialog("是否获取图片宽高请选择OK，否则选择Cancel。")
+		getWithHeight = True
 		checkFolder = False
 		self.window = sublime.active_window()
 		if len(self.window.folders()) <= 0:

@@ -5,7 +5,6 @@ import os
 import json
 
 
-
 class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		# 初始化参数
@@ -55,6 +54,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 			allFolders.sort()
 			# print(allFolders)
 			for img in allFolders:
+				size = "none"
 				if img.rfind("jpg")>0 or img.rfind("png")>0:
 					imgPath = self.thedir+"/"+img
 					try:
@@ -84,6 +84,23 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						imgLine = self.view.line(i)
 						tmp = self.view.substr(imgLine)
 						n = tmp.split('url("')
+						oldImg = n[1].replace("\")","")
+						oldImgPathTmp = self.thedir.split("/")
+						oldImgPath = ""
+						for index ,v in enumerate(oldImgPathTmp):
+							oldImgPath += v+"/"
+							if v == "branches":
+								oldImgPath += oldImgPathTmp[index+1]+"/"
+								break
+						oldImgPath += "us"+oldImg
+						oldImgPath = oldImgPath.replace("/gc/","/us/")
+
+						try:
+							# print(get_image_size)
+							w, h = get_image_size.get_image_size(oldImgPath)
+						except get_image_size.UnknownImageFormat:
+							w, h = -1, -1
+
 						fallbackEnd = False
 						if len(n) >= 2:
 							tmp = n[0]+'url("'+url+self.view.substr(i)+'")'
@@ -94,17 +111,30 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							tmp += ";\nwidth: "+str(width)+"px;"
 							tmp += "\nheight: "+str(height)+"px;"
 							tmp += "\nbackground-size: "+str(width)+"px "+str(height)+"px;"
+							if img.rfind("large") > 0:
+								size = "l"
+							elif img.rfind("medium") > 0:
+								size = "m"
+							elif img.rfind("small") > 0:
+								size = "s"
+							# print("size:",i,size,img)
 
 						# 获取前一行直到头部
 						while True:
 							preLine = self.view.full_line(point)
 							preLineStr = self.view.substr(preLine)
 							tmpPreLineStr = preLineStr.strip()
+							
+							if tmpPreLineStr[0] == "." and size != "none":
+								objectNmae = tmpPreLineStr.replace(" {", "")
+								if rewriteClass.get(objectNmae) == None:
+									rewriteClass[objectNmae] = {"run": True}
+								if size != "none":
+									rewriteClass[objectNmae][size] = {"w": width, "h": height}
+									rewriteClass[objectNmae]["o"+size] = {"w": w, "h": h}
+
 							if preLineStr[0] == "h" or preLineStr[0] == "@" or preLineStr[0] == "#" or preLineStr[0] == ".":
 								# print("preLineStr:"+preLineStr)
-								if preLineStr[0] == ".":
-									objectNmae = preLineStr.replace(" {\n", "")
-									rewriteClass[objectNmae] = 1
 								preNumbers += 1
 								tmp = preLineStr+tmp
 								while preNumbers > 0:
@@ -131,14 +161,25 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						
 					# break
 			about = ""
+			# print(rewriteClass)
 			for k in rewriteClass:
+				v = rewriteClass[k]
+				print(v)
 				classLinks = self.view.find_all(k)
+				difVal = {}
+				if v.get("l") != None and v.get("ol") != None :
+					difVal["l"] = int(v["l"]["w"]) - int(v["ol"]["w"])
+				if v.get("m") != None and v.get("om") != None :
+					difVal["m"] = int(v["m"]["w"]) - int(v["om"]["w"])
+				if v.get("s") != None and v.get("os") != None :
+					difVal["s"] = int(v["s"]["w"]) - int(v["os"]["w"])
+
 				for i in classLinks:
 					Line = self.view.line(i)
 					code = self.view.substr(Line)
 					# print(code+" --- "+k)
-					c = getCssContentByCode(code, self.view, True)
-					print(c)
+					c = getCssContentByCode(code, difVal, self.view, True)
+					# print(c)
 					about += c
 					# break
 
@@ -159,8 +200,9 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 			if allImagesCount > finishedCss:
 				sublime.error_message("Miss files , double check:\n"+missFiles)
 				print("missFiles:",missFiles)
-		
-def getCssContentByCode(code, view, samepass):
+
+# get css code by classname
+def getCssContentByCode(code, difVal, view, samepass):
 	# print("code: "+code)
 	classLinks = view.find_all(code)
 	reback = ""
@@ -174,6 +216,8 @@ def getCssContentByCode(code, view, samepass):
 			continue
 		# print("temp:",tmp,tmp[0])
 		if tmp[0] == ".":
+			if difVal.get("l") != None :
+				tmp = "/* "+str(difVal["l"])+" px off the us.*/ \n" + tmp
 			point = Line.b + 1
 			while True:
 				nextLine = view.full_line(point)
@@ -213,7 +257,16 @@ def getCssContentByCode(code, view, samepass):
 				LineContent = view.substr(prevLine)
 				lineStr = LineContent.strip()
 				if len(lineStr) > 0 and (lineStr[0] == "h" or lineStr[0] == "@" or lineStr[0] == "#"):
+					# print(atoi(lineStr.split("max-width:")[1].split("px")[0]), lineStr.split("max-width:"))
 					tmp = lineStr + tmp
+					try:
+						size = atoi(lineStr.split("max-width:")[1].split("px")[0])
+						if int(size) >= 1023 and difVal.get("m") != None :
+							tmp = "/* "+str(difVal["m"])+" px off the us.*/ \n" + tmp
+						elif int(size) >= 320 and int(size) <= 736 and difVal.get("s") != None :
+							tmp = "/* "+str(difVal["s"])+" px off the us.*/ \n" + tmp
+					except Exception as e:
+						print(e)
 					break
 				point = prevLine.a - 1
 				pass
@@ -227,4 +280,12 @@ def getCssContentByCode(code, view, samepass):
 
 	return reback
 
-
+# string with number to number.
+def atoi(string):
+	string = string[::-1]
+	num = 0
+	for i, v in enumerate(string):
+		for j in range(0,10):
+			if v == str(j):
+				num+=j * (10**i)
+	return num

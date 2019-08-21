@@ -3,6 +3,7 @@ import sublime_plugin
 from . import get_image_size
 from . import get_svg
 import os
+import re
 import json
 
 
@@ -13,7 +14,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 		preContent = ""
 		nextContent = ""
 		missFiles = ""
-		resetSVGWidthHeight = False
+		resetSVGWidthHeight = True
 		rewriteClass = {}
 		# resetSVGWidthHeight = sublime.ok_cancel_dialog("如果文件中存在 SVG 是否修改 css 宽高,是 OK, 否 Cancle.")
 		getWithHeight = True
@@ -54,7 +55,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 			allImagesCount = 0
 			finishedCss = 0
 			allFolders.sort()
-			print(allFolders)
+			# print(allFolders)
 			for img in allFolders:
 				size = "none"
 				if img.rfind("jpg")>0 or img.rfind("png")>0:
@@ -167,6 +168,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 					imgLinks = self.view.find_all("/"+img)
 					# 获取英文图片宽高
 					for i in imgLinks:
+						nlink = ""
 						tmp = ""
 						point = 0
 						imgLine = self.view.line(i)
@@ -184,7 +186,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						oldImgPath = oldImgPath.replace("/gc/","/us/")
 						w, h = get_svg.getsvg(oldImgPath)
 						if len(n) >= 2:
-							tmp = n[0]+'url("'+url+self.view.substr(i)+'")'
+							nlink = n[0]+'url("'+url+self.view.substr(i)+'")'
 						tmp = ""
 						# 获取英文 css 块, large medium small.
 						point = imgLine.a-1
@@ -202,7 +204,8 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 								widthP = round(int(width)/int(w)*100)
 								heightP = round(int(height)/int(h)*100)
 								difVal["l"] = "width:" + str(widthP) + "% height:" + str(heightP) + "%"
-								tmp += getCssContentByCode(objectNmae, difVal, ["width","height","size"], self.view, False)
+								tmp += getCssContentByCode(objectNmae, difVal, ["width","height","size","background"], self.view, False)
+								tmp = tmp.replace(oldImg,url+self.view.substr(i))
 								if resetSVGWidthHeight:
 									tmp += setCssContentWithHeight(tmp, widthP/100, heightP/100)
 								nextContent += tmp+"\n"
@@ -212,7 +215,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 			# print(rewriteClass)
 			for k in rewriteClass:
 				v = rewriteClass[k]
-				print(v)
+				# print(v)
 				classLinks = self.view.find_all(k)
 				difVal = {}
 				if v.get("l") != None and v.get("ol") != None :
@@ -257,6 +260,30 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 
 # update width and height
 def setCssContentWithHeight(content, baseW, baseH):
+	# tmp = content
+	tmp = content.split("@media")
+	# print(tmp)
+	size = {"large":{},"medium":{},"small":{}}
+	for i,v in enumerate(tmp):
+		tmp = re.findall(r"width:[\s]?(.*?)px", v)
+		if i <= 0:
+			size["large"]["w"] = int(tmp[0])
+		elif len(tmp)>0 and int(tmp[0]) >= 1023 :
+			size["medium"]["w"] = int(tmp[1])
+		elif len(tmp)>0 and int(tmp[0]) >= 320 and int(tmp[0]) < 1023 :
+			size["small"]["w"] = int(tmp[1])
+
+	for item in size:
+		print(size[item])
+		c = round(float(size[item]["w"]) * baseW)
+		owl = "width:"+str(size[item]["w"])+"px;"
+		owl2 = "width: "+str(size[item]["w"])+"px;"
+		nwl = "width: "+str(c)+"px;"
+
+
+		content = content.replace(owl,nwl)
+		content = content.replace(owl2,nwl)
+	print(size)
 	return content
 
 # get css code by classname

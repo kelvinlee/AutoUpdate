@@ -10,6 +10,10 @@ or open in menu `'Edit' -> 'Auto Update' -> '*'` choice what you want.
 
 if you have any [issues](https://github.com/kelvinlee/AutoUpdate/issues/new) let me know.
 
+#### version: 1.0.4 (beta)
+
+1. SVG (coding)
+
 #### version: 1.0.3
 
 1. MO (Done)

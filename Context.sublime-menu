@@ -36,6 +36,10 @@
       {
           "caption": "CSS/Image",
           "command": "auto_update_image"
+      },
+      {
+          "caption": "Svg",
+          "command": "get_svg"
       }
     ]
   },

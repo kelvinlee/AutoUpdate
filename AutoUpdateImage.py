@@ -85,7 +85,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						imgLine = self.view.line(i)
 						tmp = self.view.substr(imgLine)
 						n = tmp.split('url("')
-						oldImg = n[1].replace("\")","")
+						oldImg = n[1].replace(";\")","").replace("\")","")
 						oldImgPathTmp = self.thedir.split("/")
 						oldImgPath = ""
 						for index ,v in enumerate(oldImgPathTmp):
@@ -172,7 +172,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						imgLine = self.view.line(i)
 						tmp = self.view.substr(imgLine)
 						n = tmp.split('url("')
-						oldImg = n[1].replace("\")","")
+						oldImg = n[1].replace(";\")","").replace("\")","")
 						oldImgPathTmp = self.thedir.split("/")
 						oldImgPath = ""
 						for index ,v in enumerate(oldImgPathTmp):

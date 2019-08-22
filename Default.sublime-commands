@@ -29,7 +29,7 @@
         "command": "auto_update_css"
     },
     {
-        "caption": "AutoUpdate:Image",
+        "caption": "AutoUpdate:CSS/more",
         "command": "auto_update_image"
     }
 ]

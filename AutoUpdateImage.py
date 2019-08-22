@@ -13,7 +13,9 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 		newContent = ""
 		preContent = ""
 		nextContent = ""
+		svgContent = ""
 		missFiles = ""
+		# resetSVGWidthHeight = True
 		resetSVGWidthHeight = True
 		rewriteClass = {}
 		# resetSVGWidthHeight = sublime.ok_cancel_dialog("如果文件中存在 SVG 是否修改 css 宽高,是 OK, 否 Cancle.")
@@ -58,12 +60,17 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 			# print(allFolders)
 			for img in allFolders:
 				size = "none"
-				if img.rfind("jpg")>0 or img.rfind("png")>0:
+				# or img.rfind("svg")>0
+				if img.rfind("jpg")>0 or img.rfind("png")>0 or img.rfind("svg")>0:
 					imgPath = self.thedir+"/"+img
-					try:
-						width, height = get_image_size.get_image_size(imgPath)
-					except get_image_size.UnknownImageFormat:
-						width, height = -1, -1
+					if img.rfind("svg")>0:
+						width, height = get_svg.getsvg(imgPath)
+					else:
+						try:
+							width, height = get_image_size.get_image_size(imgPath)
+						except get_image_size.UnknownImageFormat:
+							width, height = -1, -1
+					# print(width,height)
 
 					css = ""
 					if checkFolder:
@@ -126,8 +133,8 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							preLine = self.view.full_line(point)
 							preLineStr = self.view.substr(preLine)
 							tmpPreLineStr = preLineStr.strip()
-							
-							if tmpPreLineStr[0] == "." and size != "none":
+							# print(tmpPreLineStr)
+							if tmpPreLineStr != "" and tmpPreLineStr[0] == "." and size != "none":
 								objectNmae = tmpPreLineStr.replace(" {", "")
 								if rewriteClass.get(objectNmae) == None:
 									rewriteClass[objectNmae] = {"run": True}
@@ -166,6 +173,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 					# print(imgPath)
 					width, height = get_svg.getsvg(imgPath)
 					imgLinks = self.view.find_all("/"+img)
+					# print(imgLinks,width,height,img)
 					# 获取英文图片宽高
 					for i in imgLinks:
 						nlink = ""
@@ -173,6 +181,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						point = 0
 						imgLine = self.view.line(i)
 						tmp = self.view.substr(imgLine)
+						# print("tmp:",tmp)
 						n = tmp.split('url("')
 						oldImg = n[1].replace("\");","").replace("\")","")
 						oldImgPathTmp = self.thedir.split("/")
@@ -189,27 +198,35 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							nlink = n[0]+'url("'+url+self.view.substr(i)+'")'
 						tmp = ""
 						# 获取英文 css 块, large medium small.
-						point = imgLine.a-1
-						preLine = self.view.full_line(point)
-						preLineStr = self.view.substr(preLine)
-						tmpPreLineStr = preLineStr.strip()
-						size = "l"
-						if tmpPreLineStr[0] == "." :
-							objectNmae = tmpPreLineStr.replace(" {", "")
-							if rewriteClass.get(objectNmae) == None:
-								rewriteClass[objectNmae] = {"run": True}
-								rewriteClass[objectNmae][size] = {"w": width, "h": height}
-								rewriteClass[objectNmae]["o"+size] = {"w": w, "h": h}
-								difVal = {}
-								widthP = round(int(width)/int(w)*100)
-								heightP = round(int(height)/int(h)*100)
-								difVal["l"] = "width:" + str(widthP) + "% height:" + str(heightP) + "%"
-								tmp += getCssContentByCode(objectNmae, difVal, ["width","height","size","background"], self.view, False)
-								tmp = tmp.replace(oldImg,url+self.view.substr(i))
-								if resetSVGWidthHeight:
-									tmp += setCssContentWithHeight(tmp, widthP/100, heightP/100)
-								nextContent += tmp+"\n"
-
+						point = imgLine.a - 1
+						# print("\n\n")
+						while True:
+							preLine = self.view.full_line(point)
+							preLineStr = self.view.substr(preLine)
+							tmpPreLineStr = preLineStr.strip()
+							size = "l"
+							# print("tmpPreLineStr:",tmpPreLineStr,"\n\n")
+							if tmpPreLineStr[0] == "." :
+								objectNmae = tmpPreLineStr.replace(" {", "")
+								if rewriteClass.get(objectNmae) == None:
+									rewriteClass[objectNmae] = {"run": True}
+									rewriteClass[objectNmae][size] = {"w": width, "h": height}
+									rewriteClass[objectNmae]["o"+size] = {"w": w, "h": h}
+									difVal = {}
+									widthP = round(int(width)/int(w)*100)
+									heightP = round(int(height)/int(h)*100)
+									difVal["l"] = "width:" + str(widthP) + "% height:" + str(heightP) + "%"
+									# print("objectNmae:",objectNmae)
+									tmp += getCssContentByCode(objectNmae, difVal, ["width","height","size","background"], True, self.view, False)
+									tmp = tmp.replace(oldImg,url+self.view.substr(i))
+									# print("tmp:",tmp)
+									if resetSVGWidthHeight:
+										tmp += setCssContentWithHeight(tmp, widthP/100, heightP/100)
+									svgContent += tmp+"\n"
+									# print(nextContent)
+								break
+							point = preLine.a-1
+							pass
 					# break
 			about = ""
 			# print(rewriteClass)
@@ -231,12 +248,11 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 				for i in classLinks:
 					Line = self.view.line(i)
 					code = self.view.substr(Line)
-					c = getCssContentByCode(code, difVal, ["left","right","top","bottom"], self.view, True)
+					c = getCssContentByCode(code, difVal, ["left","right","top","bottom"], True, self.view, True)
 					about += c
-					# break
 
 			# print(rewriteClass)
-			newContent = about + preContent + nextContent
+			newContent = about + preContent + svgContent + nextContent
 			newView = self.window.new_file()
 			newView.set_syntax_file("Packages/CSS/CSS.tmLanguage")
 			newView.insert(edit,0,newContent)
@@ -274,21 +290,19 @@ def setCssContentWithHeight(content, baseW, baseH):
 			size["small"]["w"] = int(tmp[1])
 
 	for item in size:
-		print(size[item])
+		# print(size[item])
 		c = round(float(size[item]["w"]) * baseW)
 		owl = "width:"+str(size[item]["w"])+"px;"
 		owl2 = "width: "+str(size[item]["w"])+"px;"
 		nwl = "width: "+str(c)+"px;"
 
-
 		content = content.replace(owl,nwl)
 		content = content.replace(owl2,nwl)
-	print(size)
 	return content
 
 # get css code by classname
-def getCssContentByCode(code, difVal, rightCode, view, samepass):
-	# print("code: "+code)
+def getCssContentByCode(code, difVal, rightCode, resetSVGWidthHeight, view, samepass):
+	# print("code: "+code,resetSVGWidthHeight)
 	classLinks = view.find_all(code)
 	reback = ""
 	point = 0
@@ -296,17 +310,18 @@ def getCssContentByCode(code, difVal, rightCode, view, samepass):
 	for i in classLinks:
 		Line = view.line(i)
 		tmp = view.substr(Line)
+
 		if samepass:
-			if tmp.replace(" {\n", "").replace(" {", "").strip() == code.replace(" {\n", "").replace(" {", "").strip(): 
+			if tmp.strip().replace(" {\n", "").replace(" {", "") == code.strip().replace(" {\n", "").replace(" {", ""): 
 				continue
 		else:
-			# print(samepass,tmp)
-			if tmp.replace(" {\n", "").replace(" {", "").strip() == code.replace(" {\n", "").replace(" {", "").strip(): 
+			# print(samepass,tmp,code)
+			if tmp.strip().replace(" {\n", "").replace(" {", "") == code.strip().replace(" {\n", "").replace(" {", ""): 
 				pass
 			else:
 				continue
 
-		# print("temp:",tmp,tmp[0])
+		# print("temp:",tmp.strip()[0],tmp.strip()[1],tmp,code)
 		if tmp[0] == ".":
 			if difVal.get("l") != None :
 				tmp = "/* "+str(difVal["l"])+" off the us.*/ \n" + tmp
@@ -316,10 +331,11 @@ def getCssContentByCode(code, difVal, rightCode, view, samepass):
 				LineContent = view.substr(nextLine)
 				lineStr = LineContent.strip()
 				# if len(lineStr.split("left")) > 1 or len(lineStr.split("right")) > 1 or len(lineStr.split("top")) > 1 or len(lineStr.split("bottom")) > 1:
-				for i in rightCode:
-					if len(lineStr.split(i))  > 1 :
-						tmp += lineStr
-						break
+				if resetSVGWidthHeight:
+					for i in rightCode:
+						if len(lineStr.split(i))  > 1 :
+							tmp += lineStr
+							break
 
 				if lineStr == "}":
 					tmp += lineStr
@@ -328,6 +344,9 @@ def getCssContentByCode(code, difVal, rightCode, view, samepass):
 				pass
 			# tmp += "}"
 			reback += tmp
+		elif tmp.strip()[0] == "h" and tmp.strip()[1] == "t" and tmp.strip()[2] == "m" and tmp.strip()[3] == "l" :
+			# print("empty here")
+			pass
 		else:
 			# tmp += "aaa}"
 			point = Line.b + 1
@@ -336,10 +355,11 @@ def getCssContentByCode(code, difVal, rightCode, view, samepass):
 				LineContent = view.substr(nextLine)
 				lineStr = LineContent.strip()
 				# print(len(lineStr.split("left")),len(lineStr.split("right")),lineStr)
-				for i in rightCode:
-					if len(lineStr.split(i))  > 1 :
-						tmp += lineStr
-						break
+				if resetSVGWidthHeight:
+					for i in rightCode:
+						if len(lineStr.split(i))  > 1 :
+							tmp += lineStr
+							break
 				if lineStr == "}":
 					tmp += lineStr
 					break
@@ -369,6 +389,7 @@ def getCssContentByCode(code, difVal, rightCode, view, samepass):
 			if numbEnd > 0:
 				tmp += "}"
 			reback += tmp
+	# print(reback)
 	return reback
 
 # string with number to number.

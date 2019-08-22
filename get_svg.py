@@ -14,11 +14,22 @@ class GetSvgCommand(sublime_plugin.TextCommand):
 def getsvg(file_path):
 		with io.open(file_path, "rb") as input:
 			svgContent = str(input.read())
-			w = re.findall(r"width=['\"]?(.*?)['\"].*?>", svgContent)[0]
-			h = re.findall(r"height=['\"]?(.*?)['\"].*?>", svgContent)[0]
+			cw = re.findall(r"width=['\"]?(.*?)['\"].*?>", svgContent)
+			ch = re.findall(r"height=['\"]?(.*?)['\"].*?>", svgContent)
+			w = cw[0] if len(cw) > 0 else -1
+			h = ch[0] if len(ch) > 0 else -1
 			if int(w) > 0 and int(h) > 0:
-				return (w, h)
+				return (int(w), int(h))
 			else:
-				return (-1, -1)
+				cv = re.findall(r"viewBox=['\"]?(.*?)['\"].*?>", svgContent)
+				if len(cv) > 0:
+					viewbox = re.findall(r"viewBox=['\"]?(.*?)['\"].*?>", svgContent)[0]
+					# print("viewbox:", viewbox.split(" "))
+					w = viewbox.split(" ")[2]
+					h = viewbox.split(" ")[3]
+					return (int(w), int(h))
+				else:
+					return (-1,-1)
+
 			# 如果获取不到 width height 使用 viewbox.
 			# viewbox = re.findall(r"viewBox=['\"]?(.*?)['\"].*?>", svgContent)[0]

@@ -58,7 +58,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 			finishedCss = 0
 			allFolders.sort()
 			# print(allFolders)
-			
+
 			# first time run image code css.
 			for img in allFolders:
 				size = "none"
@@ -179,7 +179,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 					if imageSize.get(fname) != None: 
 						width = imageSize[fname].w
 						height = imageSize[fname].h
-					else
+					else:
 						if img.rfind("svg")>0:
 							width, height = get_svg.getsvg(imgPath)
 						else:

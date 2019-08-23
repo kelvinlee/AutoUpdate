@@ -16,8 +16,8 @@ def getsvg(file_path):
 			svgContent = str(input.read())
 			cw = re.findall(r"width=['\"]?(.*?)['\"].*?>", svgContent)
 			ch = re.findall(r"height=['\"]?(.*?)['\"].*?>", svgContent)
-			w = cw[0] if len(cw) > 0 else -1
-			h = ch[0] if len(ch) > 0 else -1
+			w = str(cw[0]).replace("px","") if len(cw) > 0 else -1
+			h = str(ch[0]).replace("px","") if len(ch) > 0 else -1
 			if int(w) > 0 and int(h) > 0:
 				return (int(w), int(h))
 			else:

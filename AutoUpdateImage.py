@@ -14,6 +14,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 		preContent = ""
 		nextContent = ""
 		svgContent = ""
+		imageSize = {}
 		missFiles = ""
 		# resetSVGWidthHeight = True
 		resetSVGWidthHeight = True
@@ -51,17 +52,18 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 		if url == "":
 			sublime.error_message("You need put css and images in same folder.")
 		else:
-
 			# Get all directories in the component directory
 			allFolders = [ name for name in os.listdir(self.thedir) if os.path.isfile(os.path.join(self.thedir, name)) ]
 			allImagesCount = 0
 			finishedCss = 0
 			allFolders.sort()
 			# print(allFolders)
+			
+			# first time run image code css.
 			for img in allFolders:
 				size = "none"
 				# or img.rfind("svg")>0
-				if img.rfind("jpg")>0 or img.rfind("png")>0 or img.rfind("svg")>0:
+				if img.rfind("jpg")>0 or img.rfind("png")>0:
 					imgPath = self.thedir+"/"+img
 					if img.rfind("svg")>0:
 						width, height = get_svg.getsvg(imgPath)
@@ -70,8 +72,9 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							width, height = get_image_size.get_image_size(imgPath)
 						except get_image_size.UnknownImageFormat:
 							width, height = -1, -1
+					fname = img.replace(".jpg","").replace(".png","")
 					# print(width,height)
-
+					imageSize[fname] = {w: width, h: height}
 					css = ""
 					if checkFolder:
 						imgLinks = self.view.find_all("/"+temp[0]+"/"+img)
@@ -166,69 +169,120 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 								tmp = preLineStr+tmp
 							point = preLine.a-1
 							pass
-						
-				# elif img.rfind("svg") > 0:
-				# 	# 获取中文图片宽高
-				# 	imgPath = self.thedir+"/"+img
-				# 	# print(imgPath)
-				# 	width, height = get_svg.getsvg(imgPath)
-				# 	imgLinks = self.view.find_all("/"+img)
-				# 	# print(imgLinks,width,height,img)
-				# 	# 获取英文图片宽高
-				# 	for i in imgLinks:
-				# 		nlink = ""
-				# 		tmp = ""
-				# 		point = 0
-				# 		imgLine = self.view.line(i)
-				# 		tmp = self.view.substr(imgLine)
-				# 		# print("tmp:",tmp)
-				# 		n = tmp.split('url("')
-				# 		oldImg = n[1].replace("\");","").replace("\")","")
-				# 		oldImgPathTmp = self.thedir.split("/")
-				# 		oldImgPath = ""
-				# 		for index ,v in enumerate(oldImgPathTmp):
-				# 			oldImgPath += v+"/"
-				# 			if v == "branches":
-				# 				oldImgPath += oldImgPathTmp[index+1]+"/"
-				# 				break
-				# 		oldImgPath += "us"+oldImg
-				# 		oldImgPath = oldImgPath.replace("/gc/","/us/")
-				# 		w, h = get_svg.getsvg(oldImgPath)
-				# 		if len(n) >= 2:
-				# 			nlink = n[0]+'url("'+url+self.view.substr(i)+'")'
-				# 		tmp = ""
-				# 		# 获取英文 css 块, large medium small.
-				# 		point = imgLine.a - 1
-				# 		# print("\n\n")
-				# 		while True:
-				# 			preLine = self.view.full_line(point)
-				# 			preLineStr = self.view.substr(preLine)
-				# 			tmpPreLineStr = preLineStr.strip()
-				# 			size = "l"
-				# 			# print("tmpPreLineStr:",tmpPreLineStr,"\n\n")
-				# 			if tmpPreLineStr[0] == "." :
-				# 				objectNmae = tmpPreLineStr.replace(" {", "")
-				# 				if rewriteClass.get(objectNmae) == None:
-				# 					rewriteClass[objectNmae] = {"run": True}
-				# 					rewriteClass[objectNmae][size] = {"w": width, "h": height}
-				# 					rewriteClass[objectNmae]["o"+size] = {"w": w, "h": h}
-				# 					difVal = {}
-				# 					widthP = round(int(width)/int(w)*100)
-				# 					heightP = round(int(height)/int(h)*100)
-				# 					difVal["l"] = "width:" + str(widthP) + "% height:" + str(heightP) + "%"
-				# 					# print("objectNmae:",objectNmae)
-				# 					tmp += getCssContentByCode(objectNmae, difVal, ["width","height","size","background"], True, self.view, False)
-				# 					tmp = tmp.replace(oldImg,url+self.view.substr(i))
-				# 					# print("tmp:",tmp)
-				# 					if resetSVGWidthHeight:
-				# 						tmp += setCssContentWithHeight(tmp, widthP/100, heightP/100)
-				# 					svgContent += tmp+"\n"
-				# 					# print(nextContent)
-				# 				break
-				# 			point = preLine.a-1
-				# 			pass
-				# 	# break
+			
+			# second time run image code css.
+			for img in allFolders:
+				size = "none"
+				if img.rfind("svg")>0:
+					imgPath = self.thedir+"/"+img
+					fname = img.replace(".jpg","").replace(".png","").replace(".svg","")
+					if imageSize.get(fname) != None: 
+						width = imageSize[fname].w
+						height = imageSize[fname].h
+					else
+						if img.rfind("svg")>0:
+							width, height = get_svg.getsvg(imgPath)
+						else:
+							try:
+								width, height = get_image_size.get_image_size(imgPath)
+							except get_image_size.UnknownImageFormat:
+								width, height = -1, -1
 					
+					css = ""
+					if checkFolder:
+						imgLinks = self.view.find_all("/"+temp[0]+"/"+img)
+					else:
+						imgLinks = self.view.find_all("/"+img)
+					# imgLinks.reverse()
+					allImagesCount += 1
+					if len(imgLinks) <= 0:
+						missFiles += img+"	"
+					else:
+						finishedCss += 1
+					# 获取当前行。
+
+					for i in imgLinks:
+						tmp = ""
+						point = 0
+						preNumbers = 0
+						# 获取当前image的行内容
+						imgLine = self.view.line(i)
+						tmp = self.view.substr(imgLine)
+						n = tmp.split('url("')
+						oldImg = n[1].replace("\");","").replace("\")","")
+						oldImgPathTmp = self.thedir.split("/")
+						oldImgPath = ""
+						for index ,v in enumerate(oldImgPathTmp):
+							oldImgPath += v+"/"
+							if v == "branches":
+								oldImgPath += oldImgPathTmp[index+1]+"/"
+								break
+						oldImgPath += "us"+oldImg
+						oldImgPath = oldImgPath.replace("/gc/","/us/")
+
+						try:
+							# print(get_image_size)
+							w, h = get_image_size.get_image_size(oldImgPath)
+						except get_image_size.UnknownImageFormat:
+							w, h = -1, -1
+
+						fallbackEnd = False
+						if len(n) >= 2:
+							tmp = n[0]+'url("'+url+self.view.substr(i)+'")'
+						if len(tmp.split('fallback'))>=2:
+							fallbackEnd = True
+						point = imgLine.a-1
+						if getWithHeight and width > -1 and height > -1 and img.rfind("_2x") < 0:
+							tmp += ";\nwidth: "+str(width)+"px;"
+							tmp += "\nheight: "+str(height)+"px;"
+							tmp += "\nbackground-size: "+str(width)+"px "+str(height)+"px;"
+							if img.rfind("large") > 0:
+								size = "l"
+							elif img.rfind("medium") > 0:
+								size = "m"
+							elif img.rfind("small") > 0:
+								size = "s"
+							# print("size:",i,size,img)
+
+						# 获取前一行直到头部
+						while True:
+							preLine = self.view.full_line(point)
+							preLineStr = self.view.substr(preLine)
+							tmpPreLineStr = preLineStr.strip()
+							# print(tmpPreLineStr)
+							if tmpPreLineStr != "" and tmpPreLineStr[0] == "." and size != "none":
+								objectNmae = tmpPreLineStr.replace(" {", "")
+								if rewriteClass.get(objectNmae) == None:
+									rewriteClass[objectNmae] = {"run": True}
+								if size != "none":
+									rewriteClass[objectNmae][size] = {"w": width, "h": height}
+									rewriteClass[objectNmae]["o"+size] = {"w": w, "h": h}
+
+							if preLineStr[0] == "h" or preLineStr[0] == "@" or preLineStr[0] == "#" or preLineStr[0] == ".":
+								# print("preLineStr:"+preLineStr)
+								preNumbers += 1
+								tmp = preLineStr+tmp
+								while preNumbers > 0:
+									tmp = tmp+"}"
+									preNumbers -= 1
+									# print("preNumbers:",preNumbers)
+								if fallbackEnd:
+									if preLineStr[0] == "@":
+										nextContent += tmp+"\n"
+									else:
+										preContent += tmp+"\n"
+								else:
+									preContent += tmp+"\n"
+								break
+							if preNumbers < 1 and len(tmpPreLineStr)>=1 and (tmpPreLineStr[0] == "@" or tmpPreLineStr[0] == "#" or tmpPreLineStr[0] == "."):
+								preNumbers += 1
+								tmp = preLineStr+tmp
+							if preNumbers < 1 and len(tmpPreLineStr)>=3 and (tmpPreLineStr[0] == "h" and tmpPreLineStr[1] == "t" and tmpPreLineStr[2] == "m" and tmpPreLineStr[3] == "l"):
+								preNumbers += 1
+								tmp = preLineStr+tmp
+							point = preLine.a-1
+							pass	
+
 			about = ""
 			# print(rewriteClass)
 			for k in rewriteClass:
@@ -269,7 +323,6 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 			except Exception as e:
 				print(e)
 			
-
 			# print("allImagesCount:",allImagesCount,finishedCss)
 			if allImagesCount > finishedCss:
 				sublime.error_message("Miss files , double check:\n"+missFiles)

@@ -42,7 +42,7 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 		for i in allLink:
 			self.view.replace(edit, i, '="/'+gc+'/'+self.view.substr(i)[3:])
 
-		allFullLink = self.view.find_all('://www.apple.com/(?!(?:v|ac|metrics|105|'+'|'.join(countrys)+'|'+gc+'|wss|choose-your-country|jobs))([^\"]*)', sublime.IGNORECASE)
+		allFullLink = self.view.find_all('://www.apple.com/(?!(?:v|ac|metrics|105|#organization|'+'|'.join(countrys)+'|'+gc+'|wss|choose-your-country|jobs))([^\"]*)', sublime.IGNORECASE)
 		allFullLink.reverse()
 		for i in allFullLink:
 			self.view.replace(edit, i, '://www.apple.com/'+gc+self.view.substr(i)[16:])

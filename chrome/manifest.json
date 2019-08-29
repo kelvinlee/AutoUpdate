@@ -19,7 +19,7 @@
     {
         "default_icon": "img/icon.png",
         // 图标悬停时的标题，可选
-        "default_title": "这是一个示例Chrome插件",
+        "default_title": "Giccoo-AutoTest",
         "default_popup": "popup.html"
     },
     // 当某些特定页面打开才显示的图标

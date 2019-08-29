@@ -1,3 +1,18 @@
+function changeCountry(country) {
+	var href = window.location.href;
+	if (country.toLowerCase() == "us") {
+		href = href.replace(/\.apple\.com(\/)(cn|hk\/en|hk|tw|mo)/g,".apple.com");
+		// alert(href)
+	}else{
+		href = href.replace(/\.apple\.com(\/)(cn|hk\/en|hk|tw|mo)/g,".apple.com$1"+country.toLowerCase()+"");
+		if (href.indexOf("/"+country.toLowerCase()) <= -1) {
+			href = href.replace(/\.apple\.com(\/)/g,".apple.com/"+country.toLowerCase()+"/");
+		}
+		// alert(href)
+	}
+	window.location.href = href;
+}
+
 function runSVGShowOrHide() {
 	var className = document.getElementsByTagName("html")[0].className;
 	if (className.indexOf("no-svg") > -1) {

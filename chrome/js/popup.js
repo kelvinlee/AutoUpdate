@@ -20,6 +20,10 @@ function twoX(e) {
   // window.close();
 }
 
+function changeCountryEvent(e) {
+	chrome.tabs.executeScript(null,{code:"changeCountry('"+e.target.name+"');"});
+}
+
 function CheckSVGType() {
 	var svg = document.getElementById('svg');
 	chrome.tabs.executeScript({code:"checkSVGShowOrHide();"},(results) => {
@@ -40,6 +44,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var x2 = document.getElementById('2x');
   x2.addEventListener('click',twoX);
+
+  var parent = document.getElementById("changeCountry");
+  for (var i = 0;i<parent.children.length;i++) {
+  	var item = parent.children[i];
+  	item.addEventListener("click",changeCountryEvent);
+  }
 
   CheckSVGType();
 

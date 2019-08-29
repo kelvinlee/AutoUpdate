@@ -120,7 +120,9 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							fallbackEnd = True
 						point = imgLine.a-1
 						if getWithHeight and width > -1 and height > -1 and img.rfind("_2x") < 0:
-							tmp += ";\nwidth: "+str(width)+"px;"
+							tmp += ";\n /* width:"+str(width-w)+" , height:"+str(height-h)+" */"
+							imageSize[fname]["note"] = ";\n /* width:"+str(width-w)+" , height:"+str(height-h)+" */"
+							tmp += "\nwidth: "+str(width)+"px;"
 							tmp += "\nheight: "+str(height)+"px;"
 							tmp += "\nbackground-size: "+str(width)+"px "+str(height)+"px;"
 							if img.rfind("large") > 0:
@@ -180,14 +182,14 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 						print("size:",imageSize[fname])
 						width = imageSize[fname]["w"]
 						height = imageSize[fname]["h"]
+					# else:
+					if img.rfind("svg")>0:
+						oldwidth, oldheight = get_svg.getsvg(imgPath)
 					else:
-						if img.rfind("svg")>0:
-							width, height = get_svg.getsvg(imgPath)
-						else:
-							try:
-								width, height = get_image_size.get_image_size(imgPath)
-							except get_image_size.UnknownImageFormat:
-								width, height = -1, -1
+						try:
+							oldwidth, oldheight = get_image_size.get_image_size(imgPath)
+						except get_image_size.UnknownImageFormat:
+							oldwidth, oldheight = -1, -1
 					
 					css = ""
 					if checkFolder:
@@ -223,7 +225,9 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 
 						try:
 							# print(get_image_size)
-							w, h = get_image_size.get_image_size(oldImgPath)
+
+							# w, h = get_image_size.get_image_size(oldImgPath)
+							w, h = get_svg.getsvg(oldImgPath)
 						except get_image_size.UnknownImageFormat:
 							w, h = -1, -1
 
@@ -234,6 +238,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							fallbackEnd = True
 						point = imgLine.a-1
 						if getWithHeight and width > -1 and height > -1 and img.rfind("_2x") < 0:
+							# tmp += imageSize[fname]["note"]
 							tmp += ";\nwidth: "+str(width)+"px;"
 							tmp += "\nheight: "+str(height)+"px;"
 							tmp += "\nbackground-size: "+str(width)+"px "+str(height)+"px;"

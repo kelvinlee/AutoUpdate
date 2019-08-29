@@ -74,7 +74,7 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 							width, height = -1, -1
 					fname = img.replace(".jpg","").replace(".png","")
 					# print(width,height)
-					imageSize[fname] = {w: width, h: height}
+					imageSize[fname] = {"w": width, "h": height}
 					css = ""
 					if checkFolder:
 						imgLinks = self.view.find_all("/"+temp[0]+"/"+img)
@@ -177,8 +177,9 @@ class AutoUpdateImageCommand(sublime_plugin.TextCommand):
 					imgPath = self.thedir+"/"+img
 					fname = img.replace(".jpg","").replace(".png","").replace(".svg","")
 					if imageSize.get(fname) != None: 
-						width = imageSize[fname].w
-						height = imageSize[fname].h
+						print("size:",imageSize[fname])
+						width = imageSize[fname]["w"]
+						height = imageSize[fname]["h"]
 					else:
 						if img.rfind("svg")>0:
 							width, height = get_svg.getsvg(imgPath)

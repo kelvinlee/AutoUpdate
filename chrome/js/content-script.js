@@ -1,3 +1,44 @@
+var stopAnimation = false;
+var speed = 3;
+var _lastY = -1;
+function setSpeed(numb) {
+	speed = numb;
+}
+function stopAnimate() {
+	cancelAnimationFrame(scrollAnimationRunBottom);
+	cancelAnimationFrame(scrollAnimationRunTop);
+	stopAnimation = true;
+	setTimeout(function(){
+		stopAnimation = false;
+	},100);
+	return stopAnimation;
+}
+function scrollAnimationRunBottom() {
+	var documentHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.getElementsByTagName('body')[0].clientHeight;
+	y = window.scrollY + speed
+	if (y >= documentHeight - windowHeight || stopAnimation) {
+		stopAnimate();
+		return false;
+	}
+	window.scrollTo(0, y)
+	_lastY = window.scrollY
+	requestAnimationFrame(scrollAnimationRunBottom);
+}
+
+function scrollAnimationRunTop() {
+	
+	var documentHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+	y = window.scrollY - speed
+	if (y <= 0 || stopAnimation) {
+		stopAnimate();
+		return false;
+	}
+	window.scrollTo(0, y)
+
+	requestAnimationFrame(scrollAnimationRunTop);
+}
+
 function viewScrollTo(position) {
 	// alert(JSON.stringify(position[0])+position[0].x+","+position[0].y)
 	window.scrollTo(position[0].x,position[0].y)

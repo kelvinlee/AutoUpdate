@@ -6,6 +6,20 @@ var text2 = "Hide SVG";
 var cmd = false;
 var x1Size = true;
 
+function openDevTools() {
+	// alert(chrome.devtools.panels);
+	alert(chrome.devtools);
+}
+
+function scrollAnimation(e) {
+	var desc = e.target.name;
+	chrome.tabs.executeScript(null,{code:"scrollAnimationRun"+desc+"();"});
+}
+
+function scrollStop(e) {
+	chrome.tabs.executeScript(null,{code:"stopAnimate();"});
+}
+
 function setDefaultKey() {
 	cmd = false;
 
@@ -82,7 +96,6 @@ document.addEventListener("keydown", function(){
 document.addEventListener("keyup", function(){
 	setDefaultKey();
 })
-
 document.addEventListener('DOMContentLoaded', function () {
 
 	var svg = document.getElementById('svg');
@@ -91,6 +104,14 @@ document.addEventListener('DOMContentLoaded', function () {
   var x1 = document.getElementById('1x');
   x1.addEventListener('click',oneX);
 
+  var scrollBtns = document.getElementsByClassName('scrollBtn');
+  for (var i = scrollBtns.length - 1; i >= 0; i--) {
+  	scrollBtns[i].addEventListener("click",scrollAnimation)
+  }
+
+  var stopBtn = document.getElementById("scrollStop");
+  stopBtn.addEventListener("click",scrollStop);
+
   var parent = document.getElementById("changeCountry");
   for (var i = 0;i<parent.children.length;i++) {
   	var item = parent.children[i];
@@ -98,5 +119,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   CheckSVGType();
-
 });
+
+

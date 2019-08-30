@@ -4,7 +4,7 @@
     // 插件的名称
     "name": "AutoTest",
     // 插件的版本
-    "version": "0.5.1",
+    "version": "0.6.0",
     // 插件描述
     "description": "Giccoo Workshop 简易工具",
     // 图标，一般偷懒全部用一个尺寸的也没问题

@@ -1,4 +1,8 @@
-function changeCountry(country) {
+function viewScrollTo(position) {
+	// alert(JSON.stringify(position[0])+position[0].x+","+position[0].y)
+	window.scrollTo(position[0].x,position[0].y)
+}
+function changeCountry(country,newpage) {
 	var href = window.location.href;
 	if (country.toLowerCase() == "us") {
 		href = href.replace(/\.apple\.com(\/)(cn|hk\/en|hk|tw|mo)/g,".apple.com");
@@ -10,7 +14,12 @@ function changeCountry(country) {
 		}
 		// alert(href)
 	}
-	window.location.href = href;
+	if (newpage) {
+		window.open(href);
+	}else{
+		window.location.href = href;
+	}
+	return {x: window.scrollX, y: window.scrollY};
 }
 
 function runSVGShowOrHide() {
@@ -34,8 +43,8 @@ function checkSVGShowOrHide() {
 	}
 }
 
-function moveToOneX() {
-	var list = document.getElementsByTagName('figure');
+function moveToOneX(dom) {
+	var list = document.getElementsByTagName(dom);
 	for (var i = list.length - 1; i >= 0; i--) {
 		var style = list[i].currentStyle || window.getComputedStyle(list[i], false);
 		var bgImage = style.backgroundImage.replace("_2x","");
@@ -45,8 +54,8 @@ function moveToOneX() {
 	}
 }
 
-function moveToTwoX() {
-	var list = document.getElementsByTagName('figure');
+function moveToTwoX(dom) {
+	var list = document.getElementsByTagName(dom);
 	for (var i = list.length - 1; i >= 0; i--) {
 		var style = list[i].currentStyle || window.getComputedStyle(list[i], false);
 		var bgImage = style.backgroundImage.replace("_2x","");
@@ -54,6 +63,7 @@ function moveToTwoX() {
 			bgImage = bgImage.replace(/(\.jpg|\.png)/g,"_2x$1");
 			list[i].style.backgroundImage = bgImage;
 		}
+		list[i].style.backgroundImage = null;
 	}
 }
 

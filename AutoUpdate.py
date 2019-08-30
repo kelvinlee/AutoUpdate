@@ -22,6 +22,25 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 		# print(fontLang[gc],gc)
 		if gc == "cn":
 			haswechat = 1
+			# title change for KAKA
+			geoTitle = '<!--#echo encoding=\'none\' var=\'GEO_pageTitleSuffix\' -->'
+			text = '<meta property="og:site_name" content="'+geoTitle+'" />'
+			metaChange = self.view.find_all('<meta property="og:site_name" content="(.*)/>')
+			for i in metaChange:
+				self.view.replace(edit, i, text)
+			titleChange = self.view.find_all('<title>(.*)</title>')
+			for i in titleChange:
+				oldText = self.view.substr(i)
+				if oldText.rfind("<!--") > 0:
+					continue
+				else:
+					oldText = oldText.replace("Apple (中国大陆)","")
+					oldText = oldText.replace("中国大陆","")
+					oldText = oldText.replace("</title>",geoTitle+"</title>")
+				self.view.replace(edit, i, oldText)
+			# end title change
+
+
 
 		# 更新链接为本地连接
 		allShopLink = self.view.find_all('/us/shop', sublime.IGNORECASE)
@@ -76,7 +95,7 @@ class AutoUpdateCommand(sublime_plugin.TextCommand):
 		# print("iOSLink:",iOSLink)
 		for i in iOSLink:
 			text = self.view.substr(i).replace("/us","/"+gc)
-			self.view.replace(edit,i, text)
+			self.view.replace(edit, i, text)
 		
 		sameLink = self.view.find_all("/"+gc+"/"+gc)
 		iOSLink.reverse()

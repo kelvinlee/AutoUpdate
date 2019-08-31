@@ -2,6 +2,10 @@
 	text-align: center;
 }
 
+p {
+	color: #343a40;
+}
+
 .btn {
 	display: inline-block;
 	font-weight: 400;

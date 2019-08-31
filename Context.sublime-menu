@@ -36,6 +36,21 @@
       {
           "caption": "CSS/more",
           "command": "auto_update_image"
+      },
+      {
+          "caption": "Countries/cn",
+          "command": "auto_country_name",
+          "args": {"lang":"cn"}
+      },
+      {
+          "caption": "Countries/hk",
+          "command": "auto_country_name",
+          "args": {"lang":"hk"}
+      },
+      {
+          "caption": "Countries/tw",
+          "command": "auto_country_name",
+          "args": {"lang":"tw"}
       }
     ]
   },
